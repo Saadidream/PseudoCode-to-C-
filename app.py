@@ -13,7 +13,24 @@ UNK_TOKEN = '<unk>'
 
 # Tokenization function
 def tokenize(text):
+    # Convert text to string if it's not already
+    if not isinstance(text, str):
+        text = str(text)  
     return re.findall(r'\b\w+\b|[^\w\s]', text)
+
+# Build vocabulary
+def build_vocab(texts, min_freq=1):
+    counter = Counter()
+    for text in texts:
+        # Convert text to string if it's not already
+        if not isinstance(text, str):
+            text = str(text)         
+        tokens = tokenize(text)
+        counter.update(tokens)
+    vocab = [SOS_TOKEN, EOS_TOKEN, PAD_TOKEN, UNK_TOKEN]
+    vocab.extend([token for token, freq in counter.items() if freq >= min_freq])
+    token_to_idx = {token: idx for idx, token in enumerate(vocab)}
+    return token_to_idx
 
 # Convert text to indices
 def text_to_indices(text, vocab):
