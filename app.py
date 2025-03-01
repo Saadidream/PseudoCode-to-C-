@@ -4,16 +4,7 @@ import pickle
 import re
 import numpy as np
 import torch.nn as nn
-
-# Set device to CPU for Streamlit Cloud
-device = torch.device('cpu')
-
-# Load your model (assuming 'model' is already defined earlier in your code)
-model.load_state_dict(torch.load('transformer_model.pth', map_location=device))
-model.to(device)
-model.eval()
-
-# Rest of your Streamlit app code...
+from collections import Counter
 
 # Special tokens
 SOS_TOKEN = '<sos>'
@@ -48,7 +39,7 @@ def text_to_indices(text, vocab):
     indices = [vocab.get(token, vocab[UNK_TOKEN]) for token in tokens]
     return [vocab[SOS_TOKEN]] + indices + [vocab[EOS_TOKEN]]
 
-# Positional Encoding (paste the same class definition from above)
+# Positional Encoding
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -64,7 +55,7 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1), :]
         return x
 
-# Multi-Head Attention (paste from above)
+# Multi-Head Attention
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, num_heads):
         super(MultiHeadAttention, self).__init__()
@@ -87,7 +78,7 @@ class MultiHeadAttention(nn.Module):
         output = torch.matmul(attention, value).transpose(1, 2).contiguous().view(batch_size, -1, self.num_heads * self.head_dim)
         return self.output_linear(output)
 
-# Feed-Forward Network (paste from above)
+# Feed-Forward Network
 class FeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(FeedForward, self).__init__()
@@ -99,7 +90,7 @@ class FeedForward(nn.Module):
         x = self.dropout(torch.relu(self.linear1(x)))
         return self.linear2(x)
 
-# Encoder Layer (paste from above)
+# Encoder Layer
 class EncoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
         super(EncoderLayer, self).__init__()
@@ -115,7 +106,7 @@ class EncoderLayer(nn.Module):
         ff_output = self.feed_forward(x)
         return self.layer_norm2(x + self.dropout(ff_output))
 
-# Decoder Layer (paste from above)
+# Decoder Layer
 class DecoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
         super(DecoderLayer, self).__init__()
@@ -135,7 +126,7 @@ class DecoderLayer(nn.Module):
         ff_output = self.feed_forward(x)
         return self.layer_norm3(x + self.dropout(ff_output))
 
-# Encoder (paste from above)
+# Encoder
 class Encoder(nn.Module):
     def __init__(self, vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
         super(Encoder, self).__init__()
@@ -152,7 +143,7 @@ class Encoder(nn.Module):
             x = layer(x, mask)
         return x
 
-# Decoder (paste from above)
+# Decoder
 class Decoder(nn.Module):
     def __init__(self, vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
         super(Decoder, self).__init__()
@@ -169,7 +160,7 @@ class Decoder(nn.Module):
             x = layer(x, enc_output, src_mask, tgt_mask)
         return x
 
-# Transformer Model (paste from above)
+# Transformer Model
 class Transformer(nn.Module):
     def __init__(self, src_vocab_size, tgt_vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
         super(Transformer, self).__init__()
@@ -194,7 +185,7 @@ with open('cpp_vocab.pkl', 'rb') as f:
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = Transformer(len(pseudocode_vocab), len(cpp_vocab), d_model=256, num_heads=8, num_layers=3, d_ff=512, max_len=100, dropout=0.1)
-model.load_state_dict(torch.load('transformer_model.pth'))
+model.load_state_dict(torch.load('transformer_model.pth', map_location=device))
 model.to(device)
 model.eval()
 
