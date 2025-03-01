@@ -5,6 +5,16 @@ import re
 import numpy as np
 import torch.nn as nn
 
+# Set device to CPU for Streamlit Cloud
+device = torch.device('cpu')
+
+# Load your model (assuming 'model' is already defined earlier in your code)
+model.load_state_dict(torch.load('transformer_model.pth', map_location=device))
+model.to(device)
+model.eval()
+
+# Rest of your Streamlit app code...
+
 # Special tokens
 SOS_TOKEN = '<sos>'
 EOS_TOKEN = '<eos>'
